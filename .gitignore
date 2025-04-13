@@ -74,4 +74,7 @@ typechain
 typechain-types
 
 # Local Netlify folder
-.netlify 
+.netlify
+
+# Next.js build output
+.next/ 
