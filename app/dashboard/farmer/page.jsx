@@ -16,6 +16,14 @@ export default function FarmerDashboard() {
   const [newFarmerDataCID, setNewFarmerDataCID] = useState('');
   const [isMinting, setIsMinting] = useState(false);
   
+  // New state for transfer modal
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferData, setTransferData] = useState({
+    tokenId: '',
+    toAddress: ''
+  });
+  const [isTransferring, setIsTransferring] = useState(false);
+  
   // New state for traceability data
   const [traceData, setTraceData] = useState({
     data1: '',
@@ -220,6 +228,54 @@ const mintProduct = async () => {
     }
   };
 
+  // New function to handle NFT transfer
+  const handleTransfer = async () => {
+    // Validate inputs
+    if (!transferData.tokenId || !transferData.toAddress) {
+      toast.error('Please provide both token ID and recipient address');
+      return;
+    }
+
+    // Validate address format
+    if (!ethers.utils.isAddress(transferData.toAddress)) {
+      toast.error('Invalid recipient address format');
+      return;
+    }
+
+    try {
+      setIsTransferring(true);
+      
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(contractADDRESS, contractAbi, signer);
+      
+      // Get the current user's address
+      const fromAddress = await signer.getAddress();
+      
+      // Call transferFrom function instead of safeTransferFrom
+      const tx = await contract.transferFrom(
+        fromAddress,
+        transferData.toAddress,
+        transferData.tokenId
+      );
+      
+      await tx.wait();
+      
+      toast.success('NFT transferred successfully!');
+      setShowTransferModal(false);
+      setTransferData({ tokenId: '', toAddress: '' });
+      
+      // Refresh the page to update the product list
+      router.refresh();
+      
+    } catch (error) {
+      console.error('Transfer failed:', error);
+      toast.error(`Transfer failed: ${error.reason || error.message}`);
+    } finally {
+      setIsTransferring(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('userAddress');
     router.push('/');
@@ -243,13 +299,67 @@ const mintProduct = async () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-black">Farmer Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="text-white bg-red-600 hover:bg-red-500 px-4 py-2 rounded-md transition duration-200"
-          >
-            Logout
-          </button>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setShowTransferModal(true)}
+              className="text-white bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-md transition duration-200"
+            >
+              Transfer NFT
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-white bg-red-600 hover:bg-red-500 px-4 py-2 rounded-md transition duration-200"
+            >
+              Logout
+            </button>
+          </div>
         </div>
+
+        {/* Transfer Modal */}
+        {showTransferModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h2 className="text-xl font-semibold text-black mb-4">Transfer NFT</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Token ID</label>
+                  <input
+                    type="text"
+                    placeholder="Enter token ID"
+                    className="w-full p-2 border rounded text-black"
+                    value={transferData.tokenId}
+                    onChange={(e) => setTransferData({...transferData, tokenId: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Recipient Address</label>
+                  <input
+                    type="text"
+                    placeholder="Enter recipient address"
+                    className="w-full p-2 border rounded text-black"
+                    value={transferData.toAddress}
+                    onChange={(e) => setTransferData({...transferData, toAddress: e.target.value})}
+                  />
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    onClick={() => setShowTransferModal(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleTransfer}
+                    disabled={isTransferring}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+                  >
+                    {isTransferring ? 'Transferring...' : 'Transfer'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Pinata API Credentials Section - Removed since we're using environment variables */}
         {/* Product Minting Section */}
