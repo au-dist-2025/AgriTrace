@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import About from './About';
 import SignIn from './SignIn';
+import CarbonCreditSignIn from './CarbonCreditSignIn';
 import Footer from '@/components/Footer';
 
 const App = () => {
-  const [showAbout, setShowAbout] = useState(true);
+  const [activeSection, setActiveSection] = useState('about');
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
@@ -17,18 +18,26 @@ const App = () => {
           <ul className="flex justify-around">
             <li>
               <button
-                onClick={() => setShowAbout(true)}
-                className={`text-lg font-semibold transition duration-300 ${showAbout ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
+                onClick={() => setActiveSection('about')}
+                className={`text-lg font-semibold transition duration-300 ${activeSection === 'about' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
               >
                 About
               </button>
             </li>
             <li>
               <button
-                onClick={() => setShowAbout(false)}
-                className={`text-lg font-semibold transition duration-300 ${!showAbout ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
+                onClick={() => setActiveSection('signIn')}
+                className={`text-lg font-semibold transition duration-300 ${activeSection === 'signIn' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-600'}`}
               >
-                Sign In
+                AgriTrace
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setActiveSection('carbonCredit')}
+                className={`text-lg font-semibold transition duration-300 ${activeSection === 'carbonCredit' ? 'text-green-600 border-b-2 border-green-600' : 'text-gray-600 hover:text-green-600'}`}
+              >
+                CarbonCreditNFT
               </button>
             </li>
           </ul>
@@ -36,7 +45,7 @@ const App = () => {
 
         {/* Animated Content */}
         <AnimatePresence mode="wait">
-          {showAbout ? (
+          {activeSection === 'about' ? (
             <motion.div
               key="About"
               initial={{ opacity: 0, y: 20 }}
@@ -46,7 +55,7 @@ const App = () => {
             >
               <About />
             </motion.div>
-          ) : (
+          ) : activeSection === 'signIn' ? (
             <motion.div
               key="signIn"
               initial={{ opacity: 0, y: 20 }}
@@ -55,6 +64,26 @@ const App = () => {
               transition={{ duration: 0.3 }}
             >
               <SignIn />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="carbonCredit"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <CarbonCreditSignIn />
+              
+              {/* Marketplace Link */}
+              <div className="mt-6 text-center">
+                <a 
+                  href="/carbon-credit/marketplace" 
+                  className="inline-block bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition duration-300"
+                >
+                  Browse Carbon Credit Marketplace
+                </a>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
