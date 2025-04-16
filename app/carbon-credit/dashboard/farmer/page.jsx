@@ -754,6 +754,55 @@ const FarmerDashboard = () => {
           </div>
         </div>
 
+        {/* Pending Requests Details */}
+        <div className="bg-white p-6 rounded-xl shadow-sm mb-8 border border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Pending Requests Details</h2>
+          {carbonRequests.filter(req => !req.isMinted).length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {carbonRequests.map((request, index) => {
+                if (!request.isMinted) {
+                  return (
+                    <div key={index} className="p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                      <p className="text-sm text-gray-600">Request ID</p>
+                      <p className="text-lg font-medium text-gray-900">#{index}</p>
+                      <p className="text-sm text-gray-600 mt-2">Carbon Amount</p>
+                      <p className="text-lg font-medium text-gray-900">{request.carbonAmount.toString()} tons</p>
+                      <p className="text-sm text-gray-600 mt-2">IPFS Hash</p>
+                      <p className="text-sm font-mono text-gray-900 truncate">{request.ipfsHash}</p>
+                      <p className="text-sm text-gray-600 mt-2">Status</p>
+                      <p className="text-sm font-medium mb-4">
+                        {request.isVerified ? (
+                          <span className="text-green-800">Verified - Ready to Mint</span>
+                        ) : (
+                          <span className="text-yellow-800">Pending Verification</span>
+                        )}
+                      </p>
+                      {request.isVerified && !request.isMinted && (
+                        <button
+                          onClick={() => handleMintNFT(index)}
+                          disabled={isMinting}
+                          className={`w-full mt-2 px-4 py-2 rounded-lg text-white font-medium ${
+                            isMinting 
+                              ? 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-green-600 hover:bg-green-700 transition-colors'
+                          }`}
+                        >
+                          {isMinting ? 'Minting...' : 'Mint NFT'}
+                        </button>
+                      )}
+                    </div>
+                  );
+                }
+                return null;
+              })}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">
+              No pending requests at the moment
+            </p>
+          )}
+        </div>
+
         {/* Purchase Requests Section */}
         <PurchaseRequestsSection />
 

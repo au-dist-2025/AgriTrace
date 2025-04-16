@@ -57,14 +57,27 @@ const AuditorDashboard = () => {
             if (farmer.isRegistered) {
               details[address] = farmer;
               
-              // Fetch carbon requests for this farmer
+              // Fetch ALL carbon requests for this farmer to get correct indices
               const requests = [];
               let index = 0;
+              let actualRequests = [];
+              
               while (true) {
                 try {
                   const request = await contract.carbonRequests(address, index);
+                  // Store all requests to maintain correct indexing
+                  requests.push({
+                    ...request,
+                    actualIndex: index,
+                    isVerified: request.isVerified
+                  });
+                  
+                  // Only add unverified requests to the pending list
                   if (!request.isVerified) {
-                    requests.push(request);
+                    actualRequests.push({
+                      ...request,
+                      actualIndex: index
+                    });
                   }
                   index++;
                 } catch (error) {
@@ -72,10 +85,10 @@ const AuditorDashboard = () => {
                 }
               }
               
-              if (requests.length > 0) {
+              if (actualRequests.length > 0) {
                 allRequests.push({
                   farmerAddress: address,
-                  requests: requests
+                  requests: actualRequests
                 });
               }
             }
@@ -312,9 +325,9 @@ const AuditorDashboard = () => {
                       disabled={!selectedFarmer}
                     >
                       <option value="">Select a request</option>
-                      {selectedFarmer && pendingRequests.find(item => item.farmerAddress === selectedFarmer)?.requests.map((request, index) => (
-                        <option key={index} value={index}>
-                          Request #{index} - {request.carbonAmount.toString()} tons
+                      {selectedFarmer && pendingRequests.find(item => item.farmerAddress === selectedFarmer)?.requests.map((request) => (
+                        <option key={request.actualIndex} value={request.actualIndex}>
+                          Request #{request.actualIndex} - {request.carbonAmount.toString()} tons
                         </option>
                       ))}
                     </select>
@@ -394,9 +407,9 @@ const AuditorDashboard = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {item.requests.map((request, index) => (
-                            <tr key={index} className="border-t">
-                              <td className="py-3 px-4 text-black">{index}</td>
+                          {item.requests.map((request) => (
+                            <tr key={request.actualIndex} className="border-t">
+                              <td className="py-3 px-4 text-black">#{request.actualIndex}</td>
                               <td className="py-3 px-4 font-mono text-sm text-black">{request.ipfsHash}</td>
                               <td className="py-3 px-4 text-black">{request.carbonAmount.toString()} tons</td>
                               <td className="py-3 px-4">
