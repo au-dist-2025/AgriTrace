@@ -1,7 +1,7 @@
-# D-Mandates: Decentralized Carbon Credit and Agricultural Traceability System
+# AgriTrace: Decentralized Carbon Credit and Agricultural Traceability System
 
 ## Abstract
-D-Mandates is a decentralized application (dApp) that combines two major functionalities: agricultural product traceability and carbon credit management. Built on blockchain technology, it provides a transparent, secure, and efficient platform for farmers, auditors, and buyers to interact in the carbon credit market while ensuring agricultural product authenticity.
+This is a decentralized application (dApp) that combines two major functionalities: agricultural product traceability and carbon credit management. Built on blockchain technology, it provides a transparent, secure, and efficient platform for farmers, auditors, and buyers to interact in the carbon credit market while ensuring agricultural product authenticity.
 
 ## Core Features
 
